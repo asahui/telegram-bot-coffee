@@ -8,6 +8,7 @@ parser = require './parser'
 {config}= require './launcher'
 
 routes = []
+hacks = []
 
 exports.route = route = (info) ->
   for i in info
@@ -18,6 +19,10 @@ exports.route = route = (info) ->
       typing: if i.typing then i.typing else no
       handler: i.act
     routes.push r
+
+exports.hack = hack = (handleHack) ->
+  for h in handleHack
+    hacks.push h if h.name in config.hacks
 
 # grabInput: if set, all inputs except commands will be send to [module] (exports.input)
 # cmd is the command that triggered input grabbing, will be passed to the handler
@@ -39,6 +44,17 @@ isCommand = (arg, cmd) ->
     command == cmd and username == config.name
   else
     arg == cmd
+
+exports.handleHack = handleHack = (req) ->
+  result = []
+  for h in hacks
+    if h.name in config.hacks
+      result.push h.hack req
+  # if just one hack is done, the req.params will be the messge body
+  # return true to indicate to invoke handleMessage with req.params
+  if true in result
+     return true
+  false
 
 exports.handleMessage = handleMessage = (msg) ->
   korubaku (ko) =>
@@ -90,8 +106,17 @@ exports.handleMessage = handleMessage = (msg) ->
 
 exports.handleRequest = (req, res, next) ->
   console.log req.params if req.params
+  if config.hacks?
+    isHandleHack = handleHack req
+    if isHandleHack
+      handleMessage req.params
+      console.log '---- Request end ----'
+      res.end()
+      return next()
+
   handleMessage req.params.message if req.params.update_id
-  res.writeHead 200
+  #Don't call writeHead after write is called, result in making the server responses nothing
+  #res.writeHead 200
   console.log '---- Request end ----'
   res.end()
   next()

@@ -35,7 +35,7 @@ exports.launch = ->
       next()
       res.end()
 
-    server.post "/" + config.key, serv.handleRequest
+    server.post "/", serv.handleRequest
 
   # Route the help command
   serv.route help.info
@@ -44,8 +44,11 @@ exports.launch = ->
     module = require mod
 
     info = module.setup telegram, store, serv, config
+    hack = module.hack?()
 
     serv.route info
+    # config.json add a hacks(Array) to includes hacks name that are enabled
+    serv.hack hack if config.hacks? and hack?
     help.add info
   # Routhe the cancel command
   serv.route serv.info
@@ -53,9 +56,12 @@ exports.launch = ->
 
   if config.webhook
     if cluster.isMaster
-      telegram.setWebhook config.urlbase + "/" + config.key, (error) =>
-        if !error
-          console.log 'Server registered.'
+      if !config.isSetWebhook
+        telegram.setWebhook config.urlbase + "/" + config.key, (error) =>
+          if !error
+            console.log 'Server registered.'
+      else
+        console.log 'Already setWebhook'
     else
       server.listen config.port, ->
         console.log 'Server up.'

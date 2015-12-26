@@ -60,12 +60,13 @@ class Telegram
       console.log 'chat action sent'
       callback error, result
   
-  sendMessage: (chat, text, reply_to, keyboard) ->
+  sendMessage: (chat, text, parse_mode, reply_to, keyboard) ->
     opts =
       chat_id: chat
       text: text
     opts['reply_to_message_id'] = reply_to if reply_to
     opts['reply_markup'] = keyboard if keyboard
+    opts['parse_mode'] = parse_mode if parse_mode
     console.log opts
     @post 'sendMessage', opts, (error, result) =>
       console.log "Message sent to #{chat}" if result? and result.ok
