@@ -1,4 +1,4 @@
 launcher = require './launcher'
 
 exports.main = ->
-	launcher.launch()
+  launcher.launch()
