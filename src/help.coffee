@@ -11,7 +11,7 @@ exports.info = [
     opt: 1
     desc: 'Get help for a command. If no arguments passed, print the full help string'
     act: (msg, cmd) =>
-      opt = ''
+      opt = '12th Kagerou-class destroyer, Isokaze. Don\'t worry, I will guide you.\n'
       if !cmd?
         if msg.chat.title?
           opt = 'Full help disabled in groups. Please send help command via private chat.'
